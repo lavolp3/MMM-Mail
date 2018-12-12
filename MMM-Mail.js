@@ -5,6 +5,7 @@ Module.register("MMM-Mail",{
 		user: '',
 		pass: '',
 		subjectlength: 50,
+		onlyShowCount: true,
 	},
 	messages: [],	//The storage for the Mails
 	
@@ -27,7 +28,7 @@ Module.register("MMM-Mail",{
 					
 					if(this.messages.length>0)
 					{
-						console.log(this.messages[0].id);
+						console.log(this.messages.length+" Mails fetched");
 						this.messages.sort(function(a,b) {return b.id - a.id; });
 					}
 					this.updateDom(2000);
@@ -68,52 +69,58 @@ Module.register("MMM-Mail",{
         var wrapper = document.createElement("table");
         wrapper.className = "small";
         var that =this;
-		if(this.messages.length > 0)
-        {
-            var count = 0;
-            this.messages.slice(0,this.config.numberOfEmails).forEach(function (mailObj) {
-
-                var name = mailObj.sender[0].name.replace(/['"]+/g,"");
-                var subject = mailObj.subject.replace(/[\['"\]]+/g,"");
-
-                var emailWrapper = document.createElement("tr");
+		if(this.messages.length > 0) {
+		    if this.config.onlyShowCount {
+				var emailWrapper = document.createElement("tr");
                 emailWrapper.className = "normal";
+				emailWrapper.innerHTML = this.messages.length+" new emails";
+			}
+			else {
+				var count = 0;
+				this.messages.slice(0,this.config.numberOfEmails).forEach(function (mailObj) {
 
-                var nameWrapper = document.createElement("tr");
-                nameWrapper.className = "bright";
-				if(name.length)
-				{
-					nameWrapper.innerHTML = name;
-				}
-				else
-				{
-					nameWrapper.innerHTML = mailObj.sender[0].address;
-				}
-                emailWrapper.appendChild(nameWrapper);
+					var name = mailObj.sender[0].name.replace(/['"]+/g,"");
+					var subject = mailObj.subject.replace(/[\['"\]]+/g,"");
 
-                var subjectWrapper = document.createElement("tr");
-                subjectWrapper.className = "light";
-				//cut the subject
-				if(subject.length > that.config.subjectlength)
-				{
-					subject = subject.substring(0,that.config.subjectlength);
-				}
-                subjectWrapper.innerHTML = subject;
-                emailWrapper.appendChild(subjectWrapper);
+					var emailWrapper = document.createElement("tr");
+					emailWrapper.className = "normal";
 
-                wrapper.appendChild(emailWrapper);
+					var nameWrapper = document.createElement("tr");
+					nameWrapper.className = "bright";
+					if(name.length)
+					{
+						nameWrapper.innerHTML = name;
+					}
+					else
+					{
+						nameWrapper.innerHTML = mailObj.sender[0].address;
+					}
+					emailWrapper.appendChild(nameWrapper);
 
-                // Create fade effect.
-                if (that.config.fade) {
-                    var startingPoint = that.messages.slice(0,that.config.numberOfEmails).length * 0.25;
-                    var steps = that.messages.slice(0,that.config.numberOfEmails).length - startingPoint;
-                    if (count >= startingPoint) {
-                        var currentStep = count - startingPoint;
-                        emailWrapper.style.opacity = 1 - (1 / steps * currentStep);
-                    }
-                }
-                count++;
-            });
+					var subjectWrapper = document.createElement("tr");
+					subjectWrapper.className = "light";
+					//cut the subject
+					if(subject.length > that.config.subjectlength)
+					{
+						subject = subject.substring(0,that.config.subjectlength);
+					}
+					subjectWrapper.innerHTML = subject;
+					emailWrapper.appendChild(subjectWrapper);
+
+					wrapper.appendChild(emailWrapper);
+
+					// Create fade effect.
+					if (that.config.fade) {
+						var startingPoint = that.messages.slice(0,that.config.numberOfEmails).length * 0.25;
+						var steps = that.messages.slice(0,that.config.numberOfEmails).length - startingPoint;
+						if (count >= startingPoint) {
+							var currentStep = count - startingPoint;
+							emailWrapper.style.opacity = 1 - (1 / steps * currentStep);
+						}
+					}
+				    count++;	
+				});
+			}
         }
         else{
             wrapper.innerHTML = "No Unread mails";
